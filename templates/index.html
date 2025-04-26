@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gráfico en Tiempo Real</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 20px; }
+    canvas { max-width: 800px; margin: auto; }
+  </style>
+</head>
+<body>
+  <h2>Datos del sensor en tiempo real</h2>
+  <canvas id="grafico"></canvas>
+
+  <script>
+    const ctx = document.getElementById('grafico').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Sensor',
+          data: [],
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.3
+        }]
+      },
+      options: {
+        scales: {
+          x: { title: { display: true, text: 'Muestras' }},
+          y: { title: { display: true, text: 'Valor' }}
+        }
+      }
+    });
+
+    async function actualizarGrafico() {
+      const res = await fetch('/api/datos');
+      const datos = await res.json();
+      chart.data.labels = datos.map((_, i) => i + 1);
+      chart.data.datasets[0].data = datos;
+      chart.update();
+    }
+
+    setInterval(actualizarGrafico, 2000);
+    actualizarGrafico();
+  </script>
+</body>
+</html>
